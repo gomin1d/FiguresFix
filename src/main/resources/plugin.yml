@@ -1,0 +1,6 @@
+name: FiguresFix
+version: 1.0-SNAPSHOT
+main: ru.leymooo.figuresfix.FiguresFix
+author: Leymooo
+depend: [ProtocolLib]
+softdepend: [ViaVersion]

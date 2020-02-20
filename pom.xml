@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>ru.leymooo.figuresfix</groupId>
+    <artifactId>FiguresFix</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <java.encoding>UTF-8</java.encoding>
+        <java.version>1.8</java.version>
+        <project.build.sourceEncoding>${java.encoding}</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>${java.encoding}</project.reporting.outputEncoding>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>lokha-maven-repo</id>
+            <url>https://raw.githubusercontent.com/lokha/maven-repo/repository/</url>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>net.mineland</groupId>
+            <artifactId>ViaVersion</artifactId>
+            <version>2.1.3</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Ядро, Paper Spigot -->
+        <dependency>
+            <groupId>net.mineland</groupId>
+            <artifactId>Paper</artifactId>
+            <version>1568</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>net.mineland</groupId>
+            <artifactId>ProtocolLib-API</artifactId>
+            <version>4.4.0-lokha-repo</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <!-- Дефолтные плагины сборки -->
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+
+        <plugins>
+            <!-- Компляция -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.7.0</version>
+
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
+
+            <!-- Запаковывание зависимостей в один jar файл -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
