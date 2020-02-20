@@ -21,6 +21,10 @@
             <url>https://raw.githubusercontent.com/lokha/maven-repo/repository/</url>
         </repository>
         <repository>
+            <id>spyme-maven-repo</id>
+            <url>https://raw.githubusercontent.com/spymeyt/maven-repo/repository/</url>
+        </repository>
+        <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
