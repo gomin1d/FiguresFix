@@ -33,6 +33,7 @@ public class FiguresFix extends JavaPlugin {
     }
     ProtocolLibrary.getProtocolManager().addPacketListener(new WindowClickFix(this));
     ProtocolLibrary.getProtocolManager().addPacketListener(new SetSlotFix(this));
+    Bukkit.getPluginManager().registerEvents(new InventoryOpenCrashFix(), this);
     getLogger().info("[FiguresFix] SET SIZE: " + shulkers.size());
   }
 
