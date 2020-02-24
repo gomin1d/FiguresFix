@@ -32,15 +32,9 @@ public class InventoryOpenCrashFix implements Listener {
         // удаляем историю старше минуты
         playerData.historyOpen.removeIf(openTime -> current - openTime > 60_000);
 
-        // добавляем новое открытие
-        playerData.historyOpen.add(current);
-
-        // не больше 20 открытий гуи в минуту
-        if (playerData.historyOpen.size() >= 20) {
-            ((Player) event.getPlayer()).kickPlayer("" +
-                    "§cНельзя так часто открывать инвентарь." +
-                    "\n \n" +
-                    "§cYou can’t open your inventory so often.");
+        // не больше 30 открытий гуи в минуту
+        if (playerData.historyOpen.size() >= 30) {
+            event.getPlayer().sendMessage("§cYou can’t open your inventory so often. §cНельзя так часто открывать инвентарь.");
             event.setCancelled(true);
             return;
         }
@@ -50,12 +44,13 @@ public class InventoryOpenCrashFix implements Listener {
                 .count();
         // не больше 10 открытий гуи за 10 сек
         if (countPer10Sec >= 10) {
-            ((Player) event.getPlayer()).kickPlayer("" +
-                    "§cНельзя так часто открывать инвентарь." +
-                    "\n \n" +
-                    "§cYou can’t open your inventory so often.");
+            event.getPlayer().sendMessage("§cYou can’t open your inventory so often. §cНельзя так часто открывать инвентарь.");
             event.setCancelled(true);
+            return;
         }
+
+        // добавляем новое открытие
+        playerData.historyOpen.add(current);
     }
 
     public PlayerData get(Player player) {
