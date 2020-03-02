@@ -18,6 +18,13 @@ import java.util.WeakHashMap;
 public class InventoryOpenCrashFix implements Listener {
 
     private Map<Player, PlayerData> metadata = new WeakHashMap<>();
+    private int per10sec;
+    private int per1min;
+
+    public InventoryOpenCrashFix(int per10sec, int per1min) {
+        this.per10sec = per10sec;
+        this.per1min = per1min;
+    }
 
     @EventHandler
     public void on(PlayerQuitEvent event) {
@@ -33,7 +40,7 @@ public class InventoryOpenCrashFix implements Listener {
         playerData.historyOpen.removeIf(openTime -> current - openTime > 60_000);
 
         // не больше 30 открытий гуи в минуту
-        if (playerData.historyOpen.size() >= 30) {
+        if (playerData.historyOpen.size() >= per1min) {
             event.getPlayer().sendMessage("§cYou can’t open your inventory so often. §cНельзя так часто открывать инвентарь.");
             event.setCancelled(true);
             return;
@@ -43,7 +50,7 @@ public class InventoryOpenCrashFix implements Listener {
                 .filter(openTime -> current - openTime < 10_000)
                 .count();
         // не больше 10 открытий гуи за 10 сек
-        if (countPer10Sec >= 10) {
+        if (countPer10Sec >= per10sec) {
             event.getPlayer().sendMessage("§cYou can’t open your inventory so often. §cНельзя так часто открывать инвентарь.");
             event.setCancelled(true);
             return;
@@ -55,6 +62,14 @@ public class InventoryOpenCrashFix implements Listener {
 
     public PlayerData get(Player player) {
         return metadata.computeIfAbsent(player, key -> new PlayerData());
+    }
+
+    public int getPer10sec() {
+        return per10sec;
+    }
+
+    public int getPer1min() {
+        return per1min;
     }
 
     private static class PlayerData {

@@ -6,7 +6,7 @@
 
     <groupId>ru.leymooo.figuresfix</groupId>
     <artifactId>FiguresFix</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
 
     <properties>
         <java.encoding>UTF-8</java.encoding>
@@ -89,6 +89,17 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <!-- Закидывание jar файла в папку тестового сервера -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.2</version>
+                <configuration>
+                    <finalName>FiguresFix</finalName>
+                    <outputDirectory>F:\Server\plugins</outputDirectory>
+                </configuration>
             </plugin>
         </plugins>
     </build>

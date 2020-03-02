@@ -1,4 +1,5 @@
 out/**
-.idea/**
+/.idea/*
+!/.idea/runConfigurations/
 *.iml
 target/**

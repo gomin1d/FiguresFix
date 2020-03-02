@@ -21,20 +21,44 @@ import java.util.stream.Stream;
 public class FiguresFix extends JavaPlugin {
 
   private int pageLenght, writablePageLenght;
+  private int maxPages;
 
   @Override
   public void onEnable() {
     saveDefaultConfig();
     pageLenght = getConfig().getInt("max-book-page-lenght");
     writablePageLenght = getConfig().getInt("max-writable-book-page-lenght");
+    if (!getConfig().contains("max-pages")) {
+      getConfig().set("max-pages", 50);
+      saveConfig();
+    }
+    maxPages = getConfig().getInt("max-pages");
+    this.getLogger().info("Max pages: " + 50);
     String version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
     if (version.startsWith("v1_8_R")) {
       ProtocolLibrary.getProtocolManager().addPacketListener(new BlockPlaceFix(this));
     }
     ProtocolLibrary.getProtocolManager().addPacketListener(new WindowClickFix(this));
     ProtocolLibrary.getProtocolManager().addPacketListener(new SetSlotFix(this));
-    Bukkit.getPluginManager().registerEvents(new InventoryOpenCrashFix(), this);
-    getLogger().info("[FiguresFix] SET SIZE: " + shulkers.size());
+    if (getOrSet("limit-open-inventory-enable", true)) {
+      InventoryOpenCrashFix openCrashFix = new InventoryOpenCrashFix(
+              ((Number) getOrSet("limit-open-inventory-per-10-sec", 10)).intValue(),
+              ((Number) getOrSet("limit-open-inventory-per-1-min", 30)).intValue()
+      );
+      Bukkit.getPluginManager().registerEvents(openCrashFix, this);
+      getLogger().info("limit-open-inventory-per-10-sec: " + openCrashFix.getPer10sec());
+      getLogger().info("limit-open-inventory-per-1-min: " + openCrashFix.getPer1min());
+    }
+    getLogger().info("Shulker box materials: " + shulkers.size());
+  }
+
+  private <T> T getOrSet(String key, T def) {
+    if (getConfig().contains(key)) {
+      getConfig().set(key, def);
+      saveConfig();
+      return def;
+    }
+    return (T) getConfig().get(key);
   }
 
   @Override
@@ -66,9 +90,9 @@ public class FiguresFix extends JavaPlugin {
 
     if (root != null && root.containsKey("pages")) {
       NbtList<String> pages = root.getList("pages");
-      if (pages.size() > 50) {
-        getLogger().info("Too much pages. (" + pages.size() + ">" + 50 + ")");
-        return CheckResult.create("Book contains to many pages");
+      if (pages.size() > maxPages) {
+        getLogger().info("Too much pages. (" + pages.size() + ">" + maxPages + ")");
+        return CheckResult.create("Book contains to many pages (" + pages.size() + ">" + maxPages + ")");
       }
       int max = stack.getType() == Material.BOOK_AND_QUILL ? writablePageLenght : pageLenght;
       for (String page : pages) {

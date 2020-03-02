@@ -1,2 +1,6 @@
 max-book-page-lenght: 320
 max-writable-book-page-lenght: 280
+max-pages: 50
+limit-open-inventory-enable: true
+limit-open-inventory-per-10-sec: 10
+limit-open-inventory-per-1-min: 30

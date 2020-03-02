@@ -63,11 +63,10 @@ public class SetSlotFix extends PacketAdapter {
     CheckResult result = plugin.checkItem(itemStackInPacket);
     if (!CheckResult.isOk(result)) {
       event.setCancelled(true);
-      plugin.forceKick(player);
+      Bukkit.getScheduler().runTask(plugin, () -> player.kickPlayer(result.getMessage()));
       plugin.getLogger().log(Level.INFO,
           "{0} Kicked by SSF: ".concat(result.getMessage()),
           player.getName());
-      return;
     }
   }
 
