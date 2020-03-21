@@ -45,6 +45,7 @@ public class FiguresFix extends JavaPlugin implements CommandExecutor {
         ProtocolLibrary.getProtocolManager().addPacketListener(new WindowClickFix(this));
         ProtocolLibrary.getProtocolManager().addPacketListener(new SetCreativeSlotFix(this));
         ProtocolLibrary.getProtocolManager().addPacketListener(new SendItemsAdapter(this));
+//        ProtocolLibrary.getProtocolManager().addPacketListener(new SendItemsMonitorAdapter(this)); for debug
 
         this.getCommand("figuresfix").setExecutor(this);
 

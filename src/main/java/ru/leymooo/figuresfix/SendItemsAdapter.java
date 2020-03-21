@@ -93,6 +93,7 @@ public class SendItemsAdapter extends PacketAdapter {
                         ". Последний пакет " + packet.getType().name() +
                         ", последний тег длиною " + chars + ", последний предмет " + stack.getItem().getName());
             }
+            return true;
         } else if (metadata.sendItemChars > plugin.limitSendItemCharsPerTime) {
             if (current - metadata.lastSendDenyMessage > 2000) {
                 metadata.lastSendDenyMessage = current;
