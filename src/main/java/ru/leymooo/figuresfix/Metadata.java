@@ -1,31 +1,34 @@
 package ru.leymooo.figuresfix;
 
+import com.google.common.cache.CacheBuilder;
 import org.bukkit.entity.Player;
 
 import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.concurrent.TimeUnit;
 
 public class Metadata {
-    private static Map<Player, Metadata> metadataMap = new WeakHashMap<>();
+    @SuppressWarnings("unchecked")
+    private static Map<String, Metadata> metadataMap = (Map)CacheBuilder.newBuilder()
+            .expireAfterAccess(15, TimeUnit.MINUTES)
+            .build().asMap();
 
-    public Metadata(Player player) {
+    public Metadata(String player) {
         this.player = player;
     }
 
-    public static Map<Player, Metadata> getMetadataMap() {
+    public static Map<String, Metadata> getMetadataMap() {
         return metadataMap;
     }
 
     public static Metadata get(Player player) {
-        return metadataMap.computeIfAbsent(player, Metadata::new);
+        return metadataMap.computeIfAbsent(player.getName(), Metadata::new);
     }
 
-    private Player player;
+    private String player;
 
-    private int vl = 0;
-    private long startVl = System.currentTimeMillis();
+    public int sendItemChars = 0;
+    public long startItemSendChars = System.currentTimeMillis();
+    public long lastSendDenyMessage;
 
-    public void addVl(int vl) {
 
-    }
 }

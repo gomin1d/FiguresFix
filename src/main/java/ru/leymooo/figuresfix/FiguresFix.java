@@ -29,6 +29,10 @@ public class FiguresFix extends JavaPlugin implements CommandExecutor {
 
     private Config customConfig;
 
+    public int limitSendItemCharsThreshold;
+    public int limitSendItemCharsPerTime;
+    public int limitSendItemCharsTimeMillis;
+
     @Override
     public void onEnable() {
         customConfig = new Config(new File(this.getDataFolder(), "config.yml"));
@@ -39,6 +43,7 @@ public class FiguresFix extends JavaPlugin implements CommandExecutor {
         }
         ProtocolLibrary.getProtocolManager().addPacketListener(new WindowClickFix(this));
         ProtocolLibrary.getProtocolManager().addPacketListener(new SetCreativeSlotFix(this));
+        ProtocolLibrary.getProtocolManager().addPacketListener(new SendItemsAdapter(this));
 
         this.getCommand("figuresfix").setExecutor(this);
 
@@ -46,7 +51,11 @@ public class FiguresFix extends JavaPlugin implements CommandExecutor {
     }
 
     public void reloadParametersFromConfig() {
-        customConfig.setDescription("/figuresfix reload - перезагрузить этот конфиг, право figuresfix.command");
+        customConfig.setDescription("/figuresfix reload - перезагрузить этот конфиг, право figuresfix.command\n" +
+                "\n" +
+                "limit-send-item-chars-per-time - лимит кол-ва символов в теге предметов, которое может быть отправлено игроку за время\n" +
+                "limit-send-item-chars-time-millis - время, в котором действует лимит limit-send-item-chars-per-time\n" +
+                "limit-send-item-chars-threshold - начиная с какой длины тега учитывать предмет. если тег будет меньше этого значения, предмет не будет учитываться");
         pageLenght = customConfig.getOrSetNumber("max-book-page-lenght", 320).intValue();
         writablePageLenght = customConfig.getOrSetNumber("max-writable-book-page-lenght", 280).intValue();
         maxPages = customConfig.getOrSetNumber("max-pages", 50).intValue();
@@ -60,6 +69,12 @@ public class FiguresFix extends JavaPlugin implements CommandExecutor {
         if (customConfig.contains("limit-open-inventory-per-1-min")) {
             customConfig.setAndSave("limit-open-inventory-per-1-min", null);
         }
+
+        limitSendItemCharsThreshold = customConfig.getOrSetNumber("limit-send-item-chars-threshold", 64).intValue();
+        limitSendItemCharsPerTime = customConfig.getOrSetNumber("limit-send-item-chars-per-time", 20000).intValue();
+        limitSendItemCharsTimeMillis = customConfig.getOrSetNumber("limit-send-item-chars-time-millis", 1000).intValue();
+
+        Metadata.getMetadataMap().clear();
     }
 
     public void forceKick(Player p) {
