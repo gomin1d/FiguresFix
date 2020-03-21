@@ -1,16 +1,12 @@
 package ru.leymooo.figuresfix;
 
-import com.google.common.cache.CacheBuilder;
 import org.bukkit.entity.Player;
 
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Metadata {
-    @SuppressWarnings("unchecked")
-    private static Map<String, Metadata> metadataMap = (Map)CacheBuilder.newBuilder()
-            .expireAfterAccess(15, TimeUnit.MINUTES)
-            .build().asMap();
+    private static Map<String, Metadata> metadataMap = new ConcurrentHashMap<>();
 
     public Metadata(String player) {
         this.player = player;

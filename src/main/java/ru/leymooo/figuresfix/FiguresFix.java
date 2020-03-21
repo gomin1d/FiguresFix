@@ -47,6 +47,11 @@ public class FiguresFix extends JavaPlugin implements CommandExecutor {
         ProtocolLibrary.getProtocolManager().addPacketListener(new SendItemsAdapter(this));
 //        ProtocolLibrary.getProtocolManager().addPacketListener(new SendItemsMonitorAdapter(this)); for debug
 
+        Bukkit.getScheduler().runTaskTimer(this, () -> {
+            long current = System.currentTimeMillis();
+            Metadata.getMetadataMap().values().removeIf(metadata -> current - metadata.startItemSendChars > 900000); // clear 15 min
+        }, 20 * 60 * 15, 20 * 60 * 15);
+
         this.getCommand("figuresfix").setExecutor(this);
 
         this.reloadParametersFromConfig();
