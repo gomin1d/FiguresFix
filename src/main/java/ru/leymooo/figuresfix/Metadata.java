@@ -29,6 +29,9 @@ public class Metadata {
     public int sendItemChars = 0;
     public long startItemSendChars = System.currentTimeMillis();
     public long lastSendDenyMessage;
+    public long lastLog;
+    public long lastLogChars;
+    public long lastKick;
 
 
 }

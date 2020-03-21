@@ -6,7 +6,7 @@
 
     <groupId>ru.leymooo.figuresfix</groupId>
     <artifactId>FiguresFix</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
 
     <properties>
         <java.encoding>UTF-8</java.encoding>

@@ -8,6 +8,7 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
 import net.minecraft.server.v1_12_R1.*;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
@@ -66,9 +67,7 @@ public class SendItemsAdapter extends PacketAdapter {
                 if (chars < plugin.limitSendItemCharsThreshold) {
                     continue;
                 }
-                if (replace) {
-                    iterator.set(air);
-                } else if (this.check(stack, chars, current, metadata, player, packet)) {
+                if (this.check(stack, chars, current, metadata, player, packet)) {
                     replace = true;
                     iterator.set(air);
                 }
@@ -81,14 +80,36 @@ public class SendItemsAdapter extends PacketAdapter {
 
     private boolean check(ItemStack stack, int chars, long current, Metadata metadata, Player player, PacketContainer packet) {
         metadata.sendItemChars += chars;
-        if (metadata.sendItemChars > plugin.limitSendItemCharsPerTime) {
+        if (metadata.sendItemChars > plugin.limitSendItemCharsKick) {
+            if (current - metadata.lastKick > 1000) {
+                metadata.lastKick = current;
+                Bukkit.getScheduler().runTask(plugin, () -> player.kickPlayer(
+                        "§cСлишком много обновлений предметов, пожалуйста не помещайте в сундук много предметов с тегами. " +
+                                "Too many item updates, please do not put many items with tags in the chest."));
+                Location loc = player.getLocation();
+                plugin.getLogger().warning("Кикаем за лимит отправки предметов " + player.getName() +
+                        " (" + loc.getWorld().getName() + " " + loc.getBlockX() + " " + loc.getBlockY() + " " + loc.getBlockZ() + ") " +
+                        metadata.sendItemChars + "/" + plugin.limitSendItemCharsKick +
+                        ". Последний пакет " + packet.getType().name() +
+                        ", последний тег длиною " + chars + ", последний предмет " + stack.getItem().getName());
+            }
+        } else if (metadata.sendItemChars > plugin.limitSendItemCharsPerTime) {
             if (current - metadata.lastSendDenyMessage > 2000) {
                 metadata.lastSendDenyMessage = current;
-                Bukkit.getScheduler().runTask(plugin, () -> player.sendMessage("§cНекоторые предметы не удалось отобразить, работает защита от крашей. Some items could not be displayed, crash protection works."));
+                Bukkit.getScheduler().runTask(plugin, () -> player.sendMessage(
+                        "§cНекоторые предметы не удалось отобразить, не помещайте в сундук много предметов с тегами. " +
+                                "Some items could not be displayed, do not put many items with tags in the chest."));
             }
-            plugin.getLogger().warning("Лимит отправки предметов " + player.getName() + " " + metadata.sendItemChars + "/" + plugin.limitSendItemCharsPerTime +
-                    ". Последний пакет " + packet.getType().name() +
-                    ", последний тег длиною " + chars + ", последний предмет " + stack.getItem().getName());
+            if (current - metadata.lastLog > 250 || (metadata.sendItemChars > metadata.lastLogChars * 1.25)) { // чтобы часто лог не писало
+                metadata.lastLog = current;
+                metadata.lastLogChars = metadata.sendItemChars;
+                Location loc = player.getLocation();
+                plugin.getLogger().warning("Лимит отправки предметов " + player.getName() +
+                        " (" + loc.getWorld().getName() + " " + loc.getBlockX() + " " + loc.getBlockY() + " " + loc.getBlockZ() + ") " +
+                        metadata.sendItemChars + "/" + plugin.limitSendItemCharsPerTime +
+                        ". Последний пакет " + packet.getType().name() +
+                        ", последний тег длиною " + chars + ", последний предмет " + stack.getItem().getName());
+            }
             return true;
         }
 
