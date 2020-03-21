@@ -16,13 +16,13 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
-public class SetSlotFix extends PacketAdapter {
+public class SetCreativeSlotFix extends PacketAdapter {
 
   private final FiguresFix plugin;
   private final Cache<UUID, Integer> limit = CacheBuilder.newBuilder().concurrencyLevel(2).initialCapacity(10)
       .expireAfterWrite(500, TimeUnit.MILLISECONDS).build();
 
-  public SetSlotFix(FiguresFix plugin) {
+  public SetCreativeSlotFix(FiguresFix plugin) {
     super(plugin, ListenerPriority.LOWEST, PacketType.Play.Client.SET_CREATIVE_SLOT);
     this.plugin = plugin;
     registerCleanUpTask();

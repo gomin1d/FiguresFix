@@ -1,5 +1,26 @@
-out/**
+# Внимание!
+# - .gitignore работает в соответствии с спецификацией glob
+# - Порядок выражений имеет значение
+# - Каждый символ в выражениях имеет значение
+
+# Файлы IDEA
+dependency-reduced-pom.xml
+*.iml
+/target/**
+*/target/**
+/out/**
+*/out/**
+
+# В runConfigurations находятся запускаторы
 /.idea/*
 !/.idea/runConfigurations/
-*.iml
-target/**
+!/.idea/codeStyles/
+!/.idea/artifacts/
+
+# Тестовые папки
+# Советую их пометить, как Excluded, чтобы IDEA их не индексировала: ПКМ по папке -> Mark Directory as -> Excluded
+/Test?*/*
+!/TestApp/config.yml
+
+# Спец. файлы для создания пустых папок
+!**/.gitkeep
