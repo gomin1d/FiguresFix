@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 
 public class FiguresFix extends JavaPlugin implements CommandExecutor {
 
-    private int pageLenght, writablePageLenght;
+    private int pageLength, writablePageLength;
     private int maxPages;
 
     private Config customConfig;
@@ -64,8 +64,8 @@ public class FiguresFix extends JavaPlugin implements CommandExecutor {
                 "limit-send-item-chars-time-millis - время, в котором действует лимит limit-send-item-chars-per-time\n" +
                 "limit-send-item-chars-threshold - начиная с какой длины тега учитывать предмет. если тег будет меньше этого значения, предмет не будет учитываться\n" +
                 "limit-send-item-chars-kick - кол-во нарушений, когда должно кикнуть");
-        pageLenght = customConfig.getOrSetNumber("max-book-page-lenght", 320).intValue();
-        writablePageLenght = customConfig.getOrSetNumber("max-writable-book-page-lenght", 280).intValue();
+        pageLength = customConfig.getOrSetNumber("max-book-page-lenght", 320).intValue();
+        writablePageLength = customConfig.getOrSetNumber("max-writable-book-page-lenght", 280).intValue();
         maxPages = customConfig.getOrSetNumber("max-pages", 50).intValue();
 
         if (customConfig.contains("limit-open-inventory-enable")) {
@@ -113,7 +113,7 @@ public class FiguresFix extends JavaPlugin implements CommandExecutor {
                 getLogger().info("Too much pages. (" + pages.size() + ">" + maxPages + ")");
                 return CheckResult.create("Book contains to many pages (" + pages.size() + ">" + maxPages + ")");
             }
-            int max = stack.getType() == Material.BOOK_AND_QUILL ? writablePageLenght : pageLenght;
+            int max = stack.getType() == Material.BOOK_AND_QUILL ? writablePageLength : pageLength;
             for (String page : pages) {
                 if (page.length() > max) {
                     getLogger().info("Page too long. (" + page.length() + ">" + max + ")");
