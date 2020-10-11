@@ -17,8 +17,9 @@ import java.util.List;
 import java.util.ListIterator;
 
 public class SendItemsAdapter extends PacketAdapter {
-    private FiguresFix plugin;
-    private ItemStack air = CraftItemStack.asNMSCopy(new org.bukkit.inventory.ItemStack(Material.AIR));
+
+    private final FiguresFix plugin;
+    private final ItemStack air = CraftItemStack.asNMSCopy(new org.bukkit.inventory.ItemStack(Material.AIR));
 
     public SendItemsAdapter(FiguresFix plugin) {
         super(plugin, ListenerPriority.LOWEST,
@@ -81,19 +82,22 @@ public class SendItemsAdapter extends PacketAdapter {
     private boolean check(ItemStack stack, int chars, long current, Metadata metadata, Player player, PacketContainer packet) {
         metadata.sendItemChars += chars;
         if (metadata.sendItemChars > plugin.limitSendItemCharsKick) {
-            if (current - metadata.lastKick > 1000) {
-                metadata.lastKick = current;
-                Bukkit.getScheduler().runTask(plugin, () -> player.kickPlayer(
-                        "§cСлишком много обновлений предметов, пожалуйста не помещайте в сундук много предметов с тегами. " +
-                                "Too many item updates, please do not put many items with tags in the chest."));
-                Location loc = player.getLocation();
-                plugin.getLogger().warning("Кикаем за лимит отправки предметов " + player.getName() +
-                        " (" + loc.getWorld().getName() + " " + loc.getBlockX() + " " + loc.getBlockY() + " " + loc.getBlockZ() + ") " +
-                        metadata.sendItemChars + "/" + plugin.limitSendItemCharsKick +
-                        ". Последний пакет " + packet.getType().name() +
-                        ", последний тег длиною " + chars + ", последний предмет " + stack.getItem().getName());
+            if(packet.getIntegers().read(0) != 0) { //Разрешим кик только в случае, если инвентарь не принадлежит игроку
+                if (current - metadata.lastKick > 1000) {
+                    metadata.lastKick = current;
+                    Bukkit.getScheduler().runTask(plugin, () -> player.kickPlayer(
+                            "§cСлишком много обновлений предметов, пожалуйста не помещайте в сундук много предметов с тегами. " +
+                                    "Too many item updates, please do not put many items with tags in the chest."));
+                    Location loc = player.getLocation();
+                    plugin.getLogger().warning("Кикаем за лимит отправки предметов " + player.getName() +
+                            " (" + loc.getWorld().getName() + " " + loc.getBlockX() + " " + loc.getBlockY() + " " + loc.getBlockZ() + ") " +
+                            metadata.sendItemChars + "/" + plugin.limitSendItemCharsKick +
+                            ". Последний пакет " + packet.getType().name() +
+                            ", последний тег длиною " + chars + ", последний предмет " + stack.getItem().getName());
+                    return true;
+                }
             }
-            return true;
+            return false;
         } else if (metadata.sendItemChars > plugin.limitSendItemCharsPerTime) {
             if (current - metadata.lastSendDenyMessage > 2000) {
                 metadata.lastSendDenyMessage = current;
