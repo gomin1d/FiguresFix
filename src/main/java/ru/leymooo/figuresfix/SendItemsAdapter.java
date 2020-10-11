@@ -44,6 +44,10 @@ public class SendItemsAdapter extends PacketAdapter {
         }
 
         PacketContainer packet = event.getPacket();
+
+        // Разрешим кик только в случае, если инвентарь не принадлежит игроку
+        boolean noKick = packet.getIntegers().read(0) != 0;
+
         if (packet.getType().equals(PacketType.Play.Server.SET_SLOT)) {
             StructureModifier<net.minecraft.server.v1_12_R1.ItemStack> specificModifier = packet.getSpecificModifier(net.minecraft.server.v1_12_R1.ItemStack.class);
             net.minecraft.server.v1_12_R1.ItemStack stack = specificModifier.read(0);
@@ -51,7 +55,7 @@ public class SendItemsAdapter extends PacketAdapter {
             if (chars < plugin.limitSendItemCharsThreshold) {
                 return;
             }
-            if (this.check(stack, chars, current, metadata, player, packet)) {
+            if (this.check(stack, chars, current, metadata, player, packet, noKick)) {
                 specificModifier.write(0, air);
             }
         } else if (packet.getType().equals(PacketType.Play.Server.WINDOW_ITEMS)) {
@@ -68,7 +72,7 @@ public class SendItemsAdapter extends PacketAdapter {
                 if (chars < plugin.limitSendItemCharsThreshold) {
                     continue;
                 }
-                if (this.check(stack, chars, current, metadata, player, packet)) {
+                if (this.check(stack, chars, current, metadata, player, packet, noKick)) {
                     replace = true;
                     iterator.set(air);
                 }
@@ -79,25 +83,22 @@ public class SendItemsAdapter extends PacketAdapter {
         }
     }
 
-    private boolean check(ItemStack stack, int chars, long current, Metadata metadata, Player player, PacketContainer packet) {
+    private boolean check(ItemStack stack, int chars, long current, Metadata metadata, Player player, PacketContainer packet, boolean noKick) {
         metadata.sendItemChars += chars;
-        if (metadata.sendItemChars > plugin.limitSendItemCharsKick) {
-            if(packet.getIntegers().read(0) != 0) { //Разрешим кик только в случае, если инвентарь не принадлежит игроку
-                if (current - metadata.lastKick > 1000) {
-                    metadata.lastKick = current;
-                    Bukkit.getScheduler().runTask(plugin, () -> player.kickPlayer(
-                            "§cСлишком много обновлений предметов, пожалуйста не помещайте в сундук много предметов с тегами. " +
-                                    "Too many item updates, please do not put many items with tags in the chest."));
-                    Location loc = player.getLocation();
-                    plugin.getLogger().warning("Кикаем за лимит отправки предметов " + player.getName() +
-                            " (" + loc.getWorld().getName() + " " + loc.getBlockX() + " " + loc.getBlockY() + " " + loc.getBlockZ() + ") " +
-                            metadata.sendItemChars + "/" + plugin.limitSendItemCharsKick +
-                            ". Последний пакет " + packet.getType().name() +
-                            ", последний тег длиною " + chars + ", последний предмет " + stack.getItem().getName());
-                    return true;
-                }
+        if (!noKick && metadata.sendItemChars > plugin.limitSendItemCharsKick) {
+            if (current - metadata.lastKick > 1000) {
+                metadata.lastKick = current;
+                Bukkit.getScheduler().runTask(plugin, () -> player.kickPlayer(
+                        "§cСлишком много обновлений предметов, пожалуйста не помещайте в сундук много предметов с тегами. " +
+                                "Too many item updates, please do not put many items with tags in the chest."));
+                Location loc = player.getLocation();
+                plugin.getLogger().warning("Кикаем за лимит отправки предметов " + player.getName() +
+                        " (" + loc.getWorld().getName() + " " + loc.getBlockX() + " " + loc.getBlockY() + " " + loc.getBlockZ() + ") " +
+                        metadata.sendItemChars + "/" + plugin.limitSendItemCharsKick +
+                        ". Последний пакет " + packet.getType().name() +
+                        ", последний тег длиною " + chars + ", последний предмет " + stack.getItem().getName());
             }
-            return false;
+            return true;
         } else if (metadata.sendItemChars > plugin.limitSendItemCharsPerTime) {
             if (current - metadata.lastSendDenyMessage > 2000) {
                 metadata.lastSendDenyMessage = current;
