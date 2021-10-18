@@ -16,6 +16,7 @@ import org.bukkit.entity.Player;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 
 public class SendItemsAdapter extends PacketAdapter {
 
@@ -124,10 +125,13 @@ public class SendItemsAdapter extends PacketAdapter {
     }
 
     private static Field NBTTagList_list;
+    private static Field NBTTagCompound_map;
     static {
         try {
             NBTTagList_list = NBTTagList.class.getDeclaredField("list");
             NBTTagList_list.setAccessible(true);
+            NBTTagCompound_map = NBTTagCompound.class.getDeclaredField("map");
+            NBTTagCompound_map.setAccessible(true);
         } catch (NoSuchFieldException e) {
             throw new RuntimeException(e);
         }
@@ -142,8 +146,13 @@ public class SendItemsAdapter extends PacketAdapter {
         }
         if(tag instanceof NBTTagCompound){
             int counter = 0;
-            for(NBTBase value : ((NBTTagCompound) tag).map.values()){
-                counter += calcDeepLenStringsInTag(value);
+            try {
+                Map<String, NBTBase> map = (Map<String, NBTBase>) NBTTagCompound_map.get(tag);
+                for(NBTBase value : map.values()){
+                    counter += calcDeepLenStringsInTag(value);
+                }
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
             }
             return counter;
         } else if(tag instanceof NBTTagList){
