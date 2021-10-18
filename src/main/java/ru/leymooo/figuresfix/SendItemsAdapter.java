@@ -13,6 +13,7 @@ import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -122,6 +123,16 @@ public class SendItemsAdapter extends PacketAdapter {
         return false;
     }
 
+    private static Field NBTTagList_list;
+    static {
+        try {
+            NBTTagList_list = NBTTagList.class.getDeclaredField("list");
+            NBTTagList_list.setAccessible(true);
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     /**
      * Посчитать суммарную длину всех строк в этом теге
      */
@@ -137,8 +148,13 @@ public class SendItemsAdapter extends PacketAdapter {
             return counter;
         } else if(tag instanceof NBTTagList){
             int counter = 0;
-            for(NBTBase value : ((NBTTagList) tag).list){
-                counter += calcDeepLenStringsInTag(value);
+            try {
+                List<NBTBase> list = (List<NBTBase>) NBTTagList_list.get(tag);
+                for(NBTBase value : list){
+                    counter += calcDeepLenStringsInTag(value);
+                }
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
             }
             return counter;
         } else if(tag instanceof NBTTagString){
